@@ -1,0 +1,7 @@
+{
+  "name": "Lumina Glass Studio",
+  "description": "专为玻璃艺术家和学生打造的 AI 设计助手。以 3D 风格图像可视化概念，并生成技术制作配方。",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
