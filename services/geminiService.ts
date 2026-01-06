@@ -10,14 +10,29 @@ if (!currentKey && import.meta.env.VITE_API_KEY) {
   currentKey = import.meta.env.VITE_API_KEY;
 }
 
+const getClientConfig = (key: string) => {
+  const baseConfig: any = { apiKey: key };
+
+  // Check for Proxy URL
+  const proxyUrl = import.meta.env.VITE_GEMINI_PROXY_URL;
+  if (proxyUrl) {
+    // Assuming the SDK supports baseUrl or rootUrl. 
+    // For @google/genai, it is often 'baseUrl'.
+    // If using the REST proxy method via Cloudflare, we might need to conform to how the SDK appends paths.
+    // Usually setting baseUrl to "https://my-worker.dev" is sufficient if the SDK appends /v1beta/...
+    baseConfig.baseUrl = proxyUrl;
+  }
+  return baseConfig;
+}
+
 if (currentKey) {
-  aiClient = new GoogleGenAI({ apiKey: currentKey });
+  aiClient = new GoogleGenAI(getClientConfig(currentKey));
 }
 
 export const setApiKey = (key: string) => {
   currentKey = key;
   localStorage.setItem('lumina_api_key', key);
-  aiClient = new GoogleGenAI({ apiKey: key });
+  aiClient = new GoogleGenAI(getClientConfig(key));
 };
 
 export const getApiKey = () => currentKey;

@@ -1,20 +1,59 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Lumina Glass Studio (素算智合 - 玻璃艺术工坊演示)
 
-# Run and deploy your AI Studio app
+一个融合了 **Google Gemini AI** 多模态能力的现代 Web 应用演示，模拟了一个通过 AI 辅助创作玻璃艺术的完整流程。
 
-This contains everything you need to run your app locally.
+本项目旨在展示如何利用 AI 技术赋能传统手工艺，实现从“灵感描述”到“视觉呈现”再到“工艺配方”的全链路数字化创造体验。
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Zge6WYcqy7ebLgm4cbaurfJdBKgRaggl
+## 核心功能 (Demo Features)
 
-## Run Locally
+-   **🎨 Text-to-Glass (文字生图)**: 输入自然语言描述，实时生成高光质感的玻璃艺术品渲染图。
+-   **📝 Smart Recipe (智能配方)**: 点击生成的图片，AI 自动反向推导出制作该作品所需的材料、温度曲线和详细工艺步骤（吹制/灯工等）。
+-   **📸 Image-to-Recipe (反向工坊)**: 上传一张从网上找的还是自己拍的玻璃器皿照片，AI 视觉模型深入分析其纹理和形态，为您还原制作工艺。
+-   **⚖️ AI Critique & Dual Roles (双角色系统)**:
+    -   **学徒模式**: 提交作品，获得 AI“大师”的评分和改进建议。
+    -   **主理人模式**: 模拟工作室老板视角，管理学员作品并利用 AI 辅助批量批改作业。
+-   **📱 Moment Upload (社交化上传)**: 模拟微信朋友圈的上传体验，AI 自动根据图片生成优美的艺术文案，一键收录至作品集。
 
-**Prerequisites:**  Node.js
+---
 
+## 本项目背景
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+本项目上是作为个人公司的实战演示。
+
+**AI 实战课程**： 专注于《普通人如何用 AI 实现从 0 到 1 的 App 开发》，分享从逻辑构思到商业化落地的全过程。
+
+👉 **线下授课/1v1 辅导**： 适合希望将想法转化为产品的超级个体。
+
+---
+
+## 🔗 联系与支持
+
+-   **官网**： [PrimeLogic 素算智合](http://primelogic.cc) (正在 ICP 备案中，敬请期待)
+-   **合作**： 欢迎通过官网联系方式进行技术交流咨询。
+
+**本分 · 同理 · 证伪 · 笃行**
+
+---
+
+## 快速开始 (Quick Start)
+
+### 1. 安装依赖
+```bash
+npm install
+```
+
+### 2. 配置环境
+复制 `.env.example` 为 `.env` (如果需要)，或者直接在应用界面内输入 Key。
+如果需要国内访问，请参考 Cloudflare Proxy 配置。
+
+### 3. 本地运行
+```bash
+npm run dev
+```
+
+### 4. 构建部署
+项目已适配子路径部署和 AI 代理注入：
+```bash
+# 示例：构建到 /lumia/ 路径并注入代理
+VITE_GEMINI_PROXY_URL=https://您的worker地址.workers.dev npm run build
+```
