@@ -356,7 +356,6 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                 <GlassCard
                   className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
                   opacity={40}
-                  // @ts-ignore
                   onClick={() => setSelectedItem(item)}
                 >
                   <h5 className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4 group-hover:text-cyan-300 transition-colors">同学评价 (点击互动)</h5>

@@ -5,9 +5,10 @@ interface GlassCardProps {
   className?: string;
   blur?: 'sm' | 'md' | 'lg';
   opacity?: number;
+  onClick?: () => void;
 }
 
-const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', blur = 'md', opacity = 20 }) => {
+const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', blur = 'md', opacity = 20, onClick }) => {
   const backdropBlur = {
     sm: 'backdrop-blur-sm',
     md: 'backdrop-blur-md',
@@ -16,6 +17,7 @@ const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', blur = 
 
   return (
     <div
+      onClick={onClick}
       className={`
         relative rounded-2xl 
         bg-slate-900/${opacity} ${backdropBlur} 
