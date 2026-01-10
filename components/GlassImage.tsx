@@ -25,14 +25,13 @@ const GlassImage: React.FC<GlassImageProps> = ({ src, alt, className = '', conta
 
       {/* 错误占位图或备用图 */}
       {hasError && (
-        <div className="absolute inset-0 z-10 bg-slate-900 flex flex-col items-center justify-center p-4 text-center">
+        <div className="absolute inset-0 z-10 bg-slate-800/50 flex flex-col items-center justify-center p-4 text-center">
           <img
             src={fallbackSrc}
             alt="fallback"
-            className={`absolute inset-0 w-full h-full object-cover opacity-60 grayscale mix-blend-overlay`}
+            className={`absolute inset-0 w-full h-full object-cover opacity-90`}
           />
           <div className="relative z-20 flex flex-col items-center">
-            {/* 既然有 Fallback 图片，就不显示文字了，或者显示更友好的提示 */}
           </div>
         </div>
       )}

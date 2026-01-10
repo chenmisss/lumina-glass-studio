@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
+import ErrorBoundary from './components/ErrorBoundary';
 import LoginView from './components/LoginView';
 import HistoryView from './components/HistoryView';
 import HobbyistDashboard from './components/HobbyistDashboard';
@@ -164,8 +165,16 @@ function App() {
           onLogout={handleLogout}
         />
 
+        import ErrorBoundary from './components/ErrorBoundary';
+
+        // ... (imports remain)
+
+        // Inside App component return statement:
+
         <main className="flex-grow pt-4 md:pt-10">
-          {renderContent()}
+          <ErrorBoundary>
+            {renderContent()}
+          </ErrorBoundary>
         </main>
 
         <footer className="py-6 md:py-8 text-center text-slate-500 text-xs md:text-sm relative z-10 px-4">
