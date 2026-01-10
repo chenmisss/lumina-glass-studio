@@ -162,6 +162,20 @@ export const storageService = {
         timestamp: Date.now() - 172800000,
         userId,
         imageUrl: getAssetPath('/images/mock/glass-lampwork.png'),
+        // 有迭代记录但未验收 - 仍可开启对比评估
+        comparisonIterations: [
+          {
+            attemptNumber: 1,
+            userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+            aiScore: 58,
+            aiFeedback: '千花排列的密度不够均匀，边缘融合痕迹明显。建议降低温度、延长熔合时间。',
+            aiStrengths: ['色彩搭配和谐', '整体构图有想法'],
+            aiImprovements: ['千花密度需更均匀', '边缘融合不够自然', '透明度可以更高'],
+            masterEndorsement: 'AI说得对，特别是温度控制这块。下次试试先在650度保温10分钟再升温，千花会排列得更自然。',
+            timestamp: Date.now() - 172800000
+          }
+        ],
+        // 注意：没有 ownerFeedback，表示未验收
         recipe: {
           title: '千花艺术纸镇',
           description: '经典的穆拉诺千花工艺尝试。',

@@ -96,15 +96,16 @@ const HistoryView: React.FC<HistoryViewProps> = ({ items, onSelect, onClear }) =
                 <p className="text-[11px] text-slate-300 line-clamp-2 mb-4 h-8 leading-relaxed font-medium">{item.recipe.description}</p>
 
                 <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
-                  {hasIterations ? (
+                  {/* 已验收的显示"查看学习历程"，未验收的显示"开启对比评估" */}
+                  {hasIterations && item.ownerFeedback ? (
                     <button
                       onClick={() => setJourneyItem(item)}
-                      className="w-full py-2 bg-purple-600/30 hover:bg-purple-500 text-purple-100 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border border-purple-500/30"
+                      className="w-full py-2 bg-emerald-600/30 hover:bg-emerald-500 text-emerald-100 hover:text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 border border-emerald-500/30"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      查看学习历程 ({item.comparisonIterations!.length}次)
+                      查看学习历程 ({item.comparisonIterations!.length}次) ✓
                     </button>
                   ) : (
                     <button
@@ -114,7 +115,7 @@ const HistoryView: React.FC<HistoryViewProps> = ({ items, onSelect, onClear }) =
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      开启对比评估
+                      {hasIterations ? `继续对比 (${item.comparisonIterations!.length}次)` : '开启对比评估'}
                     </button>
                   )}
                   <div className="flex items-center justify-between text-[9px] text-slate-500 font-bold uppercase tracking-widest pt-1 px-1">
