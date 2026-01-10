@@ -10,12 +10,19 @@ const AVATAR_COLORS = [
   'from-orange-400 to-red-600',
 ];
 
+const getAssetPath = (path: string) => {
+  const baseUrl = import.meta.env.BASE_URL;
+  // Remove leading slash from path if baseUrl already has trailing slash to avoid double slashes
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${baseUrl}${cleanPath}`;
+};
+
 const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
   {
     id: '1',
     author: '林晓明',
     authorAvatar: 'from-purple-400 to-pink-600',
-    imageUrl: '/images/mock/glass-blown.png',
+    imageUrl: getAssetPath('/images/mock/glass-blown.png'),
     title: '晨曦琉璃瓶',
     likes: 124,
     isLiked: false,
@@ -28,7 +35,7 @@ const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
     id: '2',
     author: '陈大强',
     authorAvatar: 'from-emerald-400 to-teal-600',
-    imageUrl: '/images/mock/glass-fused.png',
+    imageUrl: getAssetPath('/images/mock/glass-fused.png'),
     title: '深海回响',
     likes: 89,
     isLiked: true,
@@ -40,7 +47,7 @@ const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
     id: '3',
     author: '王小美',
     authorAvatar: 'from-orange-400 to-red-600',
-    imageUrl: '/images/mock/glass-masterpiece.png',
+    imageUrl: getAssetPath('/images/mock/glass-masterpiece.png'),
     title: '熔岩艺术雕塑',
     likes: 256,
     isLiked: false,
@@ -128,8 +135,8 @@ export const storageService = {
         id: 'demo-1',
         timestamp: Date.now() - 86400000,
         userId,
-        imageUrl: '/images/mock/glass-blown.png',
-        userUploadedImageUrl: '/images/mock/glass-student.png',
+        imageUrl: getAssetPath('/images/mock/glass-blown.png'),
+        userUploadedImageUrl: getAssetPath('/images/mock/glass-student.png'),
         ownerFeedback: "这次吹制的冰裂纹非常自然，尤其是瓶口处的过渡展现了你对火候的精妙掌控。建议下次尝试在夹层中渗入微量银箔粉，增加晨曦般的闪烁感。",
         socialRecords: {
           likes: 42,
@@ -153,7 +160,7 @@ export const storageService = {
         id: 'demo-2',
         timestamp: Date.now() - 172800000,
         userId,
-        imageUrl: '/images/mock/glass-lampwork.png',
+        imageUrl: getAssetPath('/images/mock/glass-lampwork.png'),
         recipe: {
           title: '千花艺术纸镇',
           description: '经典的穆拉诺千花工艺尝试。',
@@ -186,7 +193,7 @@ export const storageService = {
         id: 'mock1',
         timestamp: Date.now() - 1000000,
         userId: '学员_021',
-        imageUrl: '/images/mock/glass-student.png',
+        imageUrl: getAssetPath('/images/mock/glass-student.png'),
         recipe: {
           title: '练习：渐变肌理杯',
           description: '初次尝试吹制玻璃技术。',

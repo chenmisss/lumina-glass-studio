@@ -12,7 +12,7 @@ const GlassImage: React.FC<GlassImageProps> = ({ src, alt, className = '', conta
   const [hasError, setHasError] = useState(false);
 
   // 备用稳定图片 - 使用本地 Mock 图片作为保底，确保不会出现 broken image
-  const fallbackSrc = '/images/mock/glass-masterpiece.png';
+  const fallbackSrc = `${import.meta.env.BASE_URL}images/mock/glass-masterpiece.png`;
 
   return (
     <div className={`relative overflow-hidden ${containerClassName}`}>
