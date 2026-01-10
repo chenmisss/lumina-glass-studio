@@ -126,6 +126,7 @@ const CommunityGallery: React.FC<CommunityGalleryProps> = ({ onCopyPrompt }) => 
         onClose={() => setSelectedPost(null)}
         post={selectedPost}
         onComment={handleComment}
+        onCopyPrompt={onCopyPrompt}
       />
     </>
   );

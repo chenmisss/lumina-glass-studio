@@ -8,9 +8,10 @@ interface CommunityPostModalProps {
     onClose: () => void;
     post: CommunityPost | null;
     onComment: (postId: string, content: string) => void;
+    onCopyPrompt: (prompt: string) => void;
 }
 
-const CommunityPostModal: React.FC<CommunityPostModalProps> = ({ isOpen, onClose, post, onComment }) => {
+const CommunityPostModal: React.FC<CommunityPostModalProps> = ({ isOpen, onClose, post, onComment, onCopyPrompt }) => {
     const [newComment, setNewComment] = useState('');
 
     if (!isOpen || !post) return null;
