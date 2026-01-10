@@ -36,7 +36,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, submissi
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+        <div className="fixed inset-0 z-[100] flex items-start md:items-center justify-center p-2 md:p-8 overflow-y-auto">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity"
@@ -44,8 +44,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, submissi
             />
 
             {/* Modal Content */}
-            {/* Modal Content */}
-            <GlassCard className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-6 p-4 md:p-8 border-white/20 shadow-2xl animate-in zoom-in-95 duration-300" opacity={95}>
+            <GlassCard className="relative w-full max-w-5xl mt-2 md:mt-0 flex flex-col md:flex-row gap-4 md:gap-6 p-4 md:p-8 border-white/20 shadow-2xl animate-in zoom-in-95 duration-300" opacity={95}>
 
                 {/* Close Button - Sticky to keep it visible */}
                 <button
