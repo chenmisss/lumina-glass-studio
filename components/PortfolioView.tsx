@@ -4,6 +4,8 @@ import GlassImage from './GlassImage';
 import { HistoryItem, ViewMode } from '../types';
 import { storageService } from '../services/storageService';
 import { generateCraftDescription } from '../services/geminiService';
+import CommunityPostModal from './CommunityPostModal';
+import { CommunityPost } from '../types';
 
 interface PortfolioViewProps {
   items: HistoryItem[];
@@ -13,8 +15,11 @@ interface PortfolioViewProps {
 const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,6 +70,36 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
       setUploadModalOpen(false);
       window.location.reload();
     }
+  };
+
+  const handleComment = (postId: string, content: string) => {
+    const user = storageService.getCurrentUser();
+    if (!user) return;
+
+    const updatedItem = storageService.addPortfolioComment(postId, content, user);
+
+    // Update local state to reflect change immediately if it's the selected item
+    if (selectedItem && selectedItem.id === postId) {
+      setSelectedItem(updatedItem);
+    }
+    setRefreshTrigger(prev => prev + 1); // Force re-render of list
+  };
+
+  const mapHistoryToPost = (item: HistoryItem): CommunityPost => {
+    return {
+      id: item.id,
+      author: 'Me', // In portfolio it's always the user, or we could fetch username
+      authorAvatar: 'from-cyan-400 to-blue-600', // Default or fetch
+      imageUrl: item.userUploadedImageUrl || item.imageUrl,
+      title: item.recipe.title,
+      likes: item.socialRecords?.likes || 0,
+      isLiked: false, // Self-view usually doesn't need like button state or defaults to false
+      comments: item.socialRecords?.comments.map(c => ({
+        ...c,
+        avatar: c.user === 'Lumina Master' || c.user === '陈师傅' ? 'from-blue-600 to-indigo-600' : undefined,
+        isMaster: c.user === 'Lumina Master' || c.user === '陈师傅'
+      })) || []
+    };
   };
 
   if (items.length === 0 && !uploadModalOpen) {
@@ -233,7 +268,10 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                   containerClassName="w-full h-full"
                 />
-                <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] text-white font-black uppercase tracking-widest border border-white/10 z-20">
+                <div
+                  className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] text-white font-black uppercase tracking-widest border border-white/10 z-20"
+                  onClick={(e) => { e.stopPropagation(); setSelectedItem(item); }}
+                >
                   {item.userUploadedImageUrl ? '实作作品' : 'AI 原型'}
                 </div>
               </div>
@@ -287,9 +325,14 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
               {/* 社区回响 (Social interactions) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* 点赞动态 */}
-                <GlassCard className="p-5 hover:bg-white/5 transition-colors cursor-pointer" opacity={40}>
+                <GlassCard
+                  className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
+                  opacity={40}
+                  // @ts-ignore
+                  onClick={() => setSelectedItem(item)}
+                >
                   <div className="flex items-center justify-between mb-4">
-                    <h5 className="text-[10px] font-black text-pink-400 uppercase tracking-widest">最近获得点赞</h5>
+                    <h5 className="text-[10px] font-black text-pink-400 uppercase tracking-widest group-hover:text-pink-300 transition-colors">最近获得点赞</h5>
                     <span className="text-xs text-white font-black">{item.socialRecords?.likes || 0}</span>
                   </div>
                   <div className="flex -space-x-2">
@@ -310,8 +353,13 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                 </GlassCard>
 
                 {/* 评论动态 */}
-                <GlassCard className="p-5 hover:bg-white/5 transition-colors cursor-pointer" opacity={40}>
-                  <h5 className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4">同学评价</h5>
+                <GlassCard
+                  className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
+                  opacity={40}
+                  // @ts-ignore
+                  onClick={() => setSelectedItem(item)}
+                >
+                  <h5 className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4 group-hover:text-cyan-300 transition-colors">同学评价 (点击互动)</h5>
                   <div className="space-y-3">
                     {item.socialRecords?.comments.map((comment, i) => (
                       <div key={i} className="text-xs">
@@ -319,7 +367,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                         <span className="text-slate-400">{comment.content}</span>
                       </div>
                     )) || (
-                        <p className="text-[10px] text-slate-600 font-bold italic">尚无公开评论</p>
+                        <p className="text-[10px] text-slate-600 font-bold italic">尚无公开评论，点击发起讨论</p>
                       )}
                   </div>
                 </GlassCard>
@@ -332,6 +380,15 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
 
       {/* Upload Modal for Non-empty state */}
       {uploadModalOpen && renderUploadModal()}
+
+      {/* Interaction Modal */}
+      <CommunityPostModal
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        post={selectedItem ? mapHistoryToPost(selectedItem) : null}
+        onComment={handleComment}
+        onCopyPrompt={() => { }}
+      />
     </div>
   );
 };

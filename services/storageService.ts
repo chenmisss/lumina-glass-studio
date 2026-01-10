@@ -245,4 +245,44 @@ export const storageService = {
       }
     ];
   }
+},
+
+  addPortfolioComment: (itemId: string, content: string, user: User) => {
+    const history = storageService.getAllHistory();
+const itemIndex = history.findIndex(i => i.id === itemId);
+if (itemIndex === -1) return history;
+
+const item = history[itemIndex];
+if (!item.socialRecords) {
+  item.socialRecords = { likes: 0, comments: [] };
+}
+
+item.socialRecords.comments.unshift({
+  user: user.username,
+  content,
+  time: '刚刚'
+});
+
+history[itemIndex] = item;
+localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+return item;
+  },
+
+togglePortfolioLike: (itemId: string) => {
+  const history = storageService.getAllHistory();
+  const itemIndex = history.findIndex(i => i.id === itemId);
+  if (itemIndex === -1) return history;
+
+  const item = history[itemIndex];
+  if (!item.socialRecords) {
+    item.socialRecords = { likes: 0, comments: [] };
+  }
+
+  // Simple toggle simulation (since we don't track user specific likes in simple history item yet)
+  item.socialRecords.likes += 1;
+
+  history[itemIndex] = item;
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  return item;
+}
 };
