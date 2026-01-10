@@ -17,7 +17,7 @@ const ComparisonJourneyModal: React.FC<ComparisonJourneyModalProps> = ({ isOpen,
     const iterations = item.comparisonIterations;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[100] flex items-start md:items-center justify-center p-2 sm:p-4 md:p-6 overflow-y-auto">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-slate-900/95 backdrop-blur-md transition-opacity"
@@ -25,7 +25,7 @@ const ComparisonJourneyModal: React.FC<ComparisonJourneyModalProps> = ({ isOpen,
             />
 
             {/* Modal Content */}
-            <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto custom-scrollbar animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-6xl mt-2 md:mt-0 animate-in zoom-in-95 duration-300">
                 {/* Close Button */}
                 <button
                     onClick={onClose}
@@ -37,9 +37,9 @@ const ComparisonJourneyModal: React.FC<ComparisonJourneyModalProps> = ({ isOpen,
                 </button>
 
                 {/* Header with AI Target */}
-                <GlassCard className="p-6 mb-6" opacity={80}>
-                    <div className="flex flex-col lg:flex-row gap-6 items-center">
-                        <div className="w-full lg:w-1/3">
+                <GlassCard className="p-4 md:p-6 mb-4 md:mb-6" opacity={80}>
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center">
+                        <div className="w-full md:w-1/3">
                             <div className="relative rounded-2xl overflow-hidden border-2 border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.3)]">
                                 <GlassImage
                                     src={item.imageUrl}
@@ -56,7 +56,7 @@ const ComparisonJourneyModal: React.FC<ComparisonJourneyModalProps> = ({ isOpen,
                             <div className="inline-block px-3 py-1 bg-purple-500/20 rounded-full text-[10px] text-purple-300 font-black uppercase tracking-widest mb-3 border border-purple-500/30">
                                 学习迭代记录
                             </div>
-                            <h2 className="text-2xl md:text-3xl font-black text-white italic mb-3">{item.recipe.title}</h2>
+                            <h2 className="text-xl md:text-3xl font-black text-white italic mb-2 md:mb-3">{item.recipe.title}</h2>
                             <p className="text-slate-300 text-sm mb-4">{item.recipe.description}</p>
                             <div className="flex flex-wrap gap-2">
                                 {item.recipe.techniques.map((tech, i) => (
