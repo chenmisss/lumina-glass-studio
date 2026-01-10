@@ -47,6 +47,17 @@ export interface HistoryItem extends GeneratedDesign {
     likes: number;
     comments: { user: string; content: string; time: string }[];
   };
+  // 对比迭代记录 (多次尝试)
+  comparisonIterations?: {
+    attemptNumber: number;
+    userImageUrl: string;
+    aiScore: number;
+    aiFeedback: string;
+    aiStrengths: string[];
+    aiImprovements: string[];
+    masterEndorsement?: string; // 主理人对AI建议的认可/补充
+    timestamp: number;
+  }[];
 }
 
 export interface CommunityPost {

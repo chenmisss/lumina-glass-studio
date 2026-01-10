@@ -172,6 +172,52 @@ export const storageService = {
           steps: [],
           visualPrompt: 'Millefiori glass paperweight'
         }
+      },
+      // 新增：带对比迭代的演示项目
+      {
+        id: 'demo-3',
+        timestamp: Date.now() - 259200000, // 3 days ago
+        userId,
+        imageUrl: getAssetPath('/images/mock/glass-fused.png'), // AI 生成的目标图
+        ownerFeedback: "这个项目的迭代过程很有参考价值，从第一次尝试到最终成品，可以看到明显的进步。AI的建议很中肯，值得采纳。继续保持这种认真对待每一次反馈的态度！",
+        socialRecords: {
+          likes: 67,
+          comments: [
+            { user: "林晓明", content: "这个迭代过程太励志了！", time: "1天前" },
+            { user: "张雅琪", content: "第二次真的进步很大", time: "2天前" }
+          ]
+        },
+        comparisonIterations: [
+          {
+            attemptNumber: 1,
+            userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+            aiScore: 62,
+            aiFeedback: "整体形态已经接近目标，但在色彩渐变和边缘处理上还有提升空间。玻璃的透光性表现不够，建议调整温度曲线。",
+            aiStrengths: ["基本形态把握准确", "工艺流程正确"],
+            aiImprovements: ["色彩过渡需要更平滑", "边缘打磨粗糙", "透明度不足，可能是温度控制问题"],
+            masterEndorsement: "AI的建议可以采纳。特别是关于温度曲线的调整，我建议尝试延长退火时间10分钟，这样可以让色彩过渡更自然。",
+            timestamp: Date.now() - 259200000
+          },
+          {
+            attemptNumber: 2,
+            userImageUrl: getAssetPath('/images/mock/glass-masterpiece.png'),
+            aiScore: 89,
+            aiFeedback: "非常出色的进步！色彩渐变变得流畅自然，边缘处理明显改善。透光性也达到了预期效果。基本可以达标了。",
+            aiStrengths: ["色彩过渡流畅", "边缘精细", "透光性良好", "整体完成度高"],
+            aiImprovements: ["细节处可以再精进"],
+            timestamp: Date.now() - 172800000
+          }
+        ],
+        recipe: {
+          title: '渐变熔岩花瓶',
+          description: '多次迭代学习的成果展示，展现从初学到精进的完整过程。',
+          techniques: ['热熔', '渐变上色'],
+          difficulty: 'Advanced',
+          estimatedTime: '4小时',
+          materials: ['彩色玻璃料', '金属氧化物'],
+          steps: [],
+          visualPrompt: 'Gradient lava glass vase with smooth color transitions'
+        }
       }
     ];
     localStorage.setItem(HISTORY_KEY, JSON.stringify(demoItems));
