@@ -165,11 +165,7 @@ function App() {
           onLogout={handleLogout}
         />
 
-        import ErrorBoundary from './components/ErrorBoundary';
 
-        // ... (imports remain)
-
-        // Inside App component return statement:
 
         <main className="flex-grow pt-4 md:pt-10">
           <ErrorBoundary>

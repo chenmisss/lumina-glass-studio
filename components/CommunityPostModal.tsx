@@ -7,9 +7,10 @@ interface CommunityPostModalProps {
     isOpen: boolean;
     onClose: () => void;
     post: CommunityPost | null;
+    onComment: (postId: string, content: string) => void;
 }
 
-const CommunityPostModal: React.FC<CommunityPostModalProps> = ({ isOpen, onClose, post }) => {
+const CommunityPostModal: React.FC<CommunityPostModalProps> = ({ isOpen, onClose, post, onComment }) => {
     const [newComment, setNewComment] = useState('');
 
     if (!isOpen || !post) return null;
@@ -124,6 +125,12 @@ const CommunityPostModal: React.FC<CommunityPostModalProps> = ({ isOpen, onClose
                             />
                             <button
                                 disabled={!newComment.trim()}
+                                onClick={() => {
+                                    if (post && newComment.trim()) {
+                                        onComment(post.id, newComment);
+                                        setNewComment('');
+                                    }
+                                }}
                                 className="absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-lg bg-cyan-600 text-white disabled:opacity-0 disabled:scale-95 hover:bg-cyan-500 transition-all font-bold text-xs uppercase tracking-wider shadow-lg"
                             >
                                 发送

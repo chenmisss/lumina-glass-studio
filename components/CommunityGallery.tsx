@@ -27,6 +27,19 @@ const CommunityGallery: React.FC<CommunityGalleryProps> = ({ onCopyPrompt }) => 
     }));
   };
 
+  const handleComment = (postId: string, content: string) => {
+    const currentUser = storageService.getCurrentUser();
+    if (!currentUser) {
+      alert('请先登录');
+      return;
+    }
+    const updatedPosts = storageService.addCommunityComment(postId, content, currentUser);
+    setPosts(updatedPosts);
+    // Also update the selected post to reflect changes immediately
+    const updatedPost = updatedPosts.find(p => p.id === postId);
+    if (updatedPost) setSelectedPost(updatedPost);
+  };
+
   return (
     <div className="mb-12 px-4 md:px-6 fade-in-standard overflow-hidden">
       <div className="flex justify-between items-end mb-6">
@@ -82,8 +95,8 @@ const CommunityGallery: React.FC<CommunityGalleryProps> = ({ onCopyPrompt }) => 
                   <div
                     onClick={(e) => handleLike(post.id, e)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full border-2 cursor-pointer transition-all duration-300 active:scale-90 ${post.isLiked
-                        ? 'bg-pink-500/25 border-pink-500/60 text-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.3)]'
-                        : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30 hover:bg-white/10'
+                      ? 'bg-pink-500/25 border-pink-500/60 text-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.3)]'
+                      : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/30 hover:bg-white/10'
                       }`}
                   >
                     <svg
@@ -109,6 +122,7 @@ const CommunityGallery: React.FC<CommunityGalleryProps> = ({ onCopyPrompt }) => 
         isOpen={!!selectedPost}
         onClose={() => setSelectedPost(null)}
         post={selectedPost}
+        onComment={handleComment}
       />
     </div>
   );

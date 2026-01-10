@@ -2,6 +2,7 @@ import { User, HistoryItem, GeneratedDesign, UserRole, CommunityPost, AnalyticsD
 
 const USER_KEY = 'lumina_current_user';
 const HISTORY_KEY = 'lumina_history';
+const COMMUNITY_KEY = 'lumina_community_posts';
 
 const AVATAR_COLORS = [
   'from-cyan-400 to-blue-600',
@@ -177,7 +178,44 @@ export const storageService = {
   },
 
   getCommunityPosts: (): CommunityPost[] => {
-    return MOCK_COMMUNITY_POSTS;
+    const stored = localStorage.getItem(COMMUNITY_KEY);
+    if (!stored) {
+      localStorage.setItem(COMMUNITY_KEY, JSON.stringify(MOCK_COMMUNITY_POSTS));
+      return MOCK_COMMUNITY_POSTS;
+    }
+    return JSON.parse(stored);
+  },
+
+  addCommunityComment: (postId: string, content: string, user: User) => {
+    const posts = storageService.getCommunityPosts();
+    const postIndex = posts.findIndex(p => p.id === postId);
+    if (postIndex === -1) return posts;
+
+    const newComment = {
+      user: user.username,
+      content,
+      time: '刚刚',
+      isMaster: user.role === 'owner',
+      avatar: user.avatarColor || 'from-gray-400 to-gray-600'
+    };
+
+    posts[postIndex].comments.unshift(newComment);
+    localStorage.setItem(COMMUNITY_KEY, JSON.stringify(posts));
+    return posts;
+  },
+
+  toggleLike: (postId: string) => {
+    const posts = storageService.getCommunityPosts();
+    const postIndex = posts.findIndex(p => p.id === postId);
+    if (postIndex === -1) return posts;
+
+    const post = posts[postIndex];
+    post.isLiked = !post.isLiked;
+    post.likes = post.isLiked ? post.likes + 1 : post.likes - 1;
+
+    posts[postIndex] = post;
+    localStorage.setItem(COMMUNITY_KEY, JSON.stringify(posts));
+    return posts;
   },
 
   getAnalytics: (): AnalyticsData => {
