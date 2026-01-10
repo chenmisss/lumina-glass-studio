@@ -272,19 +272,118 @@ export const storageService = {
     const realHistory = storageService.getAllHistory();
     if (realHistory.length > 0) return realHistory;
 
+    // Enhanced demo submissions for owner view - mirrors student-side demo data
     return [
       {
-        id: 'mock1',
-        timestamp: Date.now() - 1000000,
-        userId: '学员_021',
+        id: 'student-submit-1',
+        timestamp: Date.now() - 3600000, // 1 hour ago
+        userId: '王小美',
         imageUrl: getAssetPath('/images/mock/glass-student.png'),
+        userUploadedImageUrl: getAssetPath('/images/mock/glass-student.png'),
+        socialRecords: {
+          likes: 12,
+          comments: [
+            { user: '林晓明', content: '这个渐变效果很自然！', time: '30分钟前' }
+          ]
+        },
         recipe: {
-          title: '练习：渐变肌理杯',
-          description: '初次尝试吹制玻璃技术。',
-          difficulty: 'Beginner',
-          estimatedTime: '2小时',
+          title: '冰裂纹肌理杯',
+          description: '第一次尝试冰裂纹工艺，学习了急冷淬火技术。',
+          difficulty: 'Intermediate',
+          estimatedTime: '3小时',
+          techniques: ['吹制', '急冷淬火'],
+          materials: ['高透玻璃料', '冰水浴'],
+          steps: [],
+          visualPrompt: ''
+        }
+      },
+      {
+        id: 'student-submit-2',
+        timestamp: Date.now() - 7200000, // 2 hours ago
+        userId: '林晓明',
+        imageUrl: getAssetPath('/images/mock/glass-lampwork.png'),
+        userUploadedImageUrl: getAssetPath('/images/mock/glass-lampwork.png'),
+        socialRecords: {
+          likes: 28,
+          comments: [
+            { user: '王小美', content: '千花图案太精美了！', time: '1小时前' },
+            { user: '张雅琪', content: '请问色彩是怎么搭配的？', time: '1小时前' }
+          ]
+        },
+        recipe: {
+          title: '千花艺术纸镇',
+          description: '穆拉诺千花工艺学习成果，历时5小时完成。',
+          difficulty: 'Advanced',
+          estimatedTime: '5小时',
+          techniques: ['灯工', '模具压制'],
+          materials: ['彩色玻璃棒', '透明包料'],
+          steps: [],
+          visualPrompt: ''
+        }
+      },
+      {
+        id: 'student-submit-3',
+        timestamp: Date.now() - 10800000, // 3 hours ago
+        userId: '张雅琪',
+        imageUrl: getAssetPath('/images/mock/glass-fused.png'),
+        comparisonIterations: [
+          {
+            attemptNumber: 1,
+            userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+            aiScore: 62,
+            aiFeedback: '整体形态接近目标，色彩渐变需要改进。',
+            aiStrengths: ['基本形态准确'],
+            aiImprovements: ['色彩过渡需更平滑', '边缘打磨粗糙'],
+            masterEndorsement: 'AI建议可采纳，延长退火时间10分钟。',
+            timestamp: Date.now() - 172800000
+          },
+          {
+            attemptNumber: 2,
+            userImageUrl: getAssetPath('/images/mock/glass-masterpiece.png'),
+            aiScore: 89,
+            aiFeedback: '非常出色的进步！色彩渐变流畅自然。',
+            aiStrengths: ['色彩过渡流畅', '边缘精细', '整体完成度高'],
+            aiImprovements: ['细节可再精进'],
+            timestamp: Date.now() - 86400000
+          }
+        ],
+        socialRecords: {
+          likes: 67,
+          comments: [
+            { user: '林晓明', content: '迭代过程太励志了！', time: '2小时前' }
+          ]
+        },
+        recipe: {
+          title: '渐变熔岩花瓶',
+          description: '经过两次迭代完成的作品，展示了持续改进的学习态度。',
+          difficulty: 'Advanced',
+          estimatedTime: '4小时',
+          techniques: ['热熔', '渐变上色'],
+          materials: ['彩色玻璃料', '金属氧化物'],
+          steps: [],
+          visualPrompt: ''
+        }
+      },
+      {
+        id: 'student-submit-4',
+        timestamp: Date.now() - 86400000, // 1 day ago
+        userId: '陈思远',
+        imageUrl: getAssetPath('/images/mock/glass-blown.png'),
+        ownerFeedback: '这次吹制的冰裂纹非常自然，尤其是瓶口处的过渡展现了你对火候的精妙掌控。',
+        socialRecords: {
+          likes: 42,
+          comments: [
+            { user: '陈师傅', content: '非常有灵气的作品！', time: '5小时前' },
+            { user: '王小美', content: '纹理太高级了！', time: '6小时前' }
+          ]
+        },
+        recipe: {
+          title: '琥珀流光吹制杯',
+          description: '吹制工艺成果展示，获得主理人点评认可。',
+          difficulty: 'Intermediate',
+          estimatedTime: '2.5小时',
           techniques: ['吹制'],
-          materials: ['透明玻璃料'],
+          materials: ['琥珀色玻璃料'],
           steps: [],
           visualPrompt: ''
         }
