@@ -309,17 +309,17 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 fade-in-standard">
+    <div className="max-w-7xl mx-auto px-3 md:px-6 pb-16 md:pb-20 fade-in-standard">
       {/* Header */}
-      <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-4">
+      <div className="mb-6 md:mb-12 flex flex-col gap-4">
         <div>
           <div className="inline-block px-3 py-1 bg-purple-500/20 rounded-full text-[10px] text-purple-300 font-black uppercase tracking-widest mb-3 border border-purple-500/30">
             Portfolio Showcase
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter">作品会议室</h2>
-          <p className="text-slate-400 mt-3 font-bold">收录了您 {items.length} 件高光玻璃作品</p>
+          <h2 className="text-2xl md:text-5xl font-black text-white italic tracking-tighter">作品会议室</h2>
+          <p className="text-slate-400 mt-2 md:mt-3 font-bold text-sm">收录了您 {items.length} 件高光玻璃作品</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2 md:gap-4">
           <div className="relative group">
             <input
               type="file"
@@ -327,8 +327,8 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
               onChange={handleFileSelect}
             />
-            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-3 rounded-2xl border border-white/20 flex flex-col items-center shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-105 transition-transform">
-              <span className="text-xs text-white/90 font-black uppercase tracking-tighter mb-1">拍摄/上传</span>
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-3 py-2 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-white/20 flex flex-col items-center shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-105 transition-transform">
+              <span className="text-[10px] md:text-xs text-white/90 font-black uppercase tracking-tighter mb-0.5 md:mb-1">拍摄/上传</span>
               <div className="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-white">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
@@ -338,12 +338,12 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
               </div>
             </div>
           </div>
-          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center">
-            <span className="text-xs text-slate-500 font-black uppercase tracking-tighter">累计点赞</span>
+          <div className="bg-black/40 px-3 py-2 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-white/5 flex flex-col items-center">
+            <span className="text-[10px] md:text-xs text-slate-500 font-black uppercase tracking-tighter">点赞</span>
             <span className="text-xl font-black text-pink-500">{items.reduce((acc, i) => acc + (i.socialRecords?.likes || 0), 0)}</span>
           </div>
-          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center">
-            <span className="text-xs text-slate-500 font-black uppercase tracking-tighter">主理人点评</span>
+          <div className="bg-black/40 px-3 py-2 md:px-5 md:py-3 rounded-xl md:rounded-2xl border border-white/5 flex flex-col items-center">
+            <span className="text-[10px] md:text-xs text-slate-500 font-black uppercase tracking-tighter">点评</span>
             <span className="text-xl font-black text-cyan-400">{items.filter(i => i.ownerFeedback).length}</span>
           </div>
         </div>

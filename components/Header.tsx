@@ -11,8 +11,8 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, currentView, onViewChange, onLogout }) => {
   return (
-    <header className="p-3 md:p-6 sticky top-0 z-50">
-      <GlassCard className="px-3 py-2 md:px-6 md:py-4 flex justify-between items-center" opacity={85}>
+    <header className="p-2 md:p-6 sticky top-0 z-50">
+      <GlassCard className="px-2 py-1.5 md:px-6 md:py-4 flex justify-between items-center" opacity={85}>
         {/* Logo Section */}
         <div
           className="flex items-center gap-2 md:gap-3 cursor-pointer group"
@@ -37,11 +37,11 @@ const Header: React.FC<HeaderProps> = ({ user, currentView, onViewChange, onLogo
 
         {/* Navigation */}
         {user && (
-          <div className="flex items-center gap-2 md:gap-6">
-            <nav className="flex bg-black/40 rounded-full p-1 border border-white/5">
+          <div className="flex items-center gap-1 md:gap-6">
+            <nav className="flex bg-black/40 rounded-full p-0.5 md:p-1 border border-white/5">
               <button
                 onClick={() => onViewChange('dashboard')}
-                className={`px-3 py-1.5 rounded-full text-[10px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'dashboard'
+                className={`px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'dashboard'
                   ? 'bg-white/15 text-white shadow-sm'
                   : 'text-slate-500 hover:text-white'
                   }`}
@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ user, currentView, onViewChange, onLogo
               </button>
               <button
                 onClick={() => onViewChange('history')}
-                className={`px-3 py-1.5 rounded-full text-[10px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'history'
+                className={`px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'history'
                   ? 'bg-white/15 text-white shadow-sm'
                   : 'text-slate-500 hover:text-white'
                   }`}
@@ -60,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({ user, currentView, onViewChange, onLogo
               {user.role === 'hobbyist' && (
                 <button
                   onClick={() => onViewChange('portfolio')}
-                  className={`px-3 py-1.5 rounded-full text-[10px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'portfolio'
+                  className={`px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[9px] md:text-sm font-bold transition-all whitespace-nowrap ${currentView === 'portfolio'
                     ? 'bg-purple-500/30 text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]'
                     : 'text-slate-500 hover:text-white'
                     }`}
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ user, currentView, onViewChange, onLogo
               )}
             </nav>
 
-            <div className="flex items-center gap-2 md:gap-4 pl-2 md:pl-4 border-l border-white/10">
+            <div className="flex items-center gap-0.5 md:gap-4 pl-1 md:pl-4 border-l border-white/10">
               <button
                 onClick={() => {
                   const key = prompt('请输入您的 Google Gemini API Key 以启用 Live AI 功能 (仅存储在本地):', localStorage.getItem('lumina_api_key') || '');
