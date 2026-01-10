@@ -15,7 +15,7 @@ interface PortfolioViewProps {
 const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
