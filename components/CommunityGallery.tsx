@@ -41,7 +41,7 @@ const CommunityGallery: React.FC<CommunityGalleryProps> = ({ onCopyPrompt }) => 
   };
 
   return (
-  return (
+
     <>
       <div className="mb-12 px-4 md:px-6 fade-in-standard overflow-hidden">
         <div className="flex justify-between items-end mb-6">
