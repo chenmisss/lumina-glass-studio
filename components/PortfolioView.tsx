@@ -15,11 +15,12 @@ interface PortfolioViewProps {
 const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
   const [description, setDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [modalItem, setModalItem] = useState<HistoryItem | null>(null);
+
+  // Track which item is expanded (default to first item)
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(items.length > 0 ? items[0].id : null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,7 +29,7 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
         setUploadModalOpen(true);
-        setDescription(''); // Reset description
+        setDescription('');
       };
       reader.readAsDataURL(file);
     }
@@ -50,13 +51,12 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
 
   const handlePublish = () => {
     if (!selectedImage) return;
-
     const user = storageService.getCurrentUser();
     if (user) {
       storageService.saveDesign(user.id, {
         imageUrl: selectedImage,
         recipe: {
-          title: '我的新作', // In a real app we might ask for a title too
+          title: '我的新作',
           description: description || '这是我最新创作的玻璃艺术作品。',
           techniques: ['手工制作'],
           difficulty: 'Intermediate',
@@ -66,7 +66,6 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
           visualPrompt: ''
         }
       });
-      // Close and refresh (simple reload for this demo)
       setUploadModalOpen(false);
       window.location.reload();
     }
@@ -75,25 +74,18 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
   const handleComment = (postId: string, content: string) => {
     const user = storageService.getCurrentUser();
     if (!user) return;
-
-    const updatedItem = storageService.addPortfolioComment(postId, content, user);
-
-    // Update local state to reflect change immediately if it's the selected item
-    if (selectedItem && selectedItem.id === postId) {
-      setSelectedItem(updatedItem);
-    }
-    setRefreshTrigger(prev => prev + 1); // Force re-render of list
+    storageService.addPortfolioComment(postId, content, user);
   };
 
   const mapHistoryToPost = (item: HistoryItem): CommunityPost => {
     return {
       id: item.id,
-      author: 'Me', // In portfolio it's always the user, or we could fetch username
-      authorAvatar: 'from-cyan-400 to-blue-600', // Default or fetch
+      author: 'Me',
+      authorAvatar: 'from-cyan-400 to-blue-600',
       imageUrl: item.userUploadedImageUrl || item.imageUrl,
       title: item.recipe.title,
       likes: item.socialRecords?.likes || 0,
-      isLiked: false, // Self-view usually doesn't need like button state or defaults to false
+      isLiked: false,
       comments: item.socialRecords?.comments.map(c => ({
         ...c,
         avatar: c.user === 'Lumina Master' || c.user === '陈师傅' ? 'from-blue-600 to-indigo-600' : undefined,
@@ -102,6 +94,10 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
     };
   };
 
+  const expandedItem = items.find(i => i.id === expandedItemId);
+  const collapsedItems = items.filter(i => i.id !== expandedItemId);
+
+  // Empty state
   if (items.length === 0 && !uploadModalOpen) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center fade-in-standard">
@@ -135,8 +131,6 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
             </div>
           </div>
         </GlassCard>
-
-        {/* Upload Modal (Rendered conditionally even for empty state to cover it) */}
         {uploadModalOpen && renderUploadModal()}
       </div>
     );
@@ -156,14 +150,10 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                 </svg>
               </button>
             </div>
-
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Image Preview */}
-              <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden bg-black border border-white/10 relative group">
+              <div className="w-full md:w-1/2 aspect-square rounded-2xl overflow-hidden bg-black border border-white/10">
                 <img src={selectedImage || ''} alt="Preview" className="w-full h-full object-cover" />
               </div>
-
-              {/* Form */}
               <div className="w-full md:w-1/2 flex flex-col">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
                   作品描述 / 心得
@@ -175,28 +165,19 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
                     placeholder="写下您的创作灵感、使用的工艺，或者想对大家说的话..."
                     className="w-full h-full min-h-[150px] bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 resize-none mb-14"
                   />
-
-                  {/* AI Button */}
                   <div className="absolute bottom-3 right-3 flex gap-2">
                     <button
                       onClick={handleAiAssist}
                       disabled={isAnalyzing}
-                      className={`
-                                  flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
-                                  ${isAnalyzing
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
+                        ${isAnalyzing
                           ? 'bg-purple-500/20 border-purple-500/30 text-purple-300 cursor-wait'
-                          : 'bg-purple-600 hover:bg-purple-500 border-purple-400 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)] hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]'}
-                               `}
+                          : 'bg-purple-600 hover:bg-purple-500 border-purple-400 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]'}`}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`}>
-                        <path d="M16.5 6a3 3 0 00-3-3H6a3 3 0 00-3 3v7.5a3 3 0 003 3v-6A4.5 4.5 0 0110.5 6h6z" />
-                        <path d="M18 7.5a3 3 0 013 3V18a3 3 0 01-3 3h-7.5a3 3 0 01-3-3v-7.5a3 3 0 013-3H18z" />
-                      </svg>
                       {isAnalyzing ? 'AI 构思中...' : 'AI 帮我写文案'}
                     </button>
                   </div>
                 </div>
-
                 <button
                   onClick={handlePublish}
                   className="mt-auto w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-sm uppercase tracking-widest shadow-lg transition-all"
@@ -211,8 +192,125 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
     );
   }
 
+  // Render expanded item section
+  function renderExpandedItem(item: HistoryItem) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12 animate-in fade-in duration-500">
+        {/* Left: Image */}
+        <div className="lg:col-span-5 space-y-4">
+          <div
+            className="relative group overflow-hidden rounded-3xl border border-white/20 aspect-square shadow-2xl cursor-pointer"
+            onClick={() => setModalItem(item)}
+          >
+            <GlassImage
+              src={item.userUploadedImageUrl || item.imageUrl}
+              alt={item.recipe.title}
+              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              containerClassName="w-full h-full"
+            />
+            <div className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] text-white font-black uppercase tracking-widest border border-white/10 z-20">
+              {item.userUploadedImageUrl ? '实作作品' : 'AI 原型'}
+            </div>
+            {/* Expand indicator */}
+            <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-purple-600/80 backdrop-blur-md rounded-full text-[10px] text-white font-black uppercase tracking-widest border border-purple-400/30 z-20 flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m10.5 11.25v-4.5m0 4.5h-4.5m4.5 0L15 15m-6 0L3.75 20.25m16.5-16.5L15 9" />
+              </svg>
+              当前展开
+            </div>
+          </div>
+          <div className="flex justify-between items-center px-2">
+            <h3 className="text-xl font-black text-white italic">{item.recipe.title}</h3>
+            <span className="text-[10px] text-slate-500 font-bold uppercase">{new Date(item.timestamp).toLocaleDateString()}</span>
+          </div>
+          <div className="bg-white/5 p-4 rounded-xl border border-white/5 text-sm text-slate-300 leading-relaxed italic">
+            "{item.recipe.description}"
+          </div>
+        </div>
+
+        {/* Right: Feedback & Social */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Master Feedback */}
+          <GlassCard className="p-6 md:p-8 relative overflow-hidden group hover:border-amber-500/30 transition-colors" opacity={60}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center border-2 border-white/20 shadow-lg">
+                <span className="text-white font-black italic">师</span>
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-white uppercase tracking-widest">主理人批示</h4>
+                <p className="text-[10px] text-amber-500 font-bold">STUDIO MASTER'S PRIVATE NOTE</p>
+              </div>
+            </div>
+            {item.ownerFeedback ? (
+              <div className="bg-white/5 p-5 rounded-2xl border border-white/10">
+                <p className="text-slate-200 italic leading-relaxed text-sm md:text-base mb-4">
+                  "{item.ownerFeedback}"
+                </p>
+                <div className="flex justify-end">
+                  <span className="text-[10px] text-slate-500 font-black italic">— 陈师傅, 艺术总监</span>
+                </div>
+              </div>
+            ) : (
+              <div className="py-6 text-center border-2 border-dashed border-white/5 rounded-2xl">
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">等待主理人审阅中...</p>
+              </div>
+            )}
+          </GlassCard>
+
+          {/* Social Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <GlassCard
+              className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
+              opacity={40}
+              onClick={() => setModalItem(item)}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h5 className="text-[10px] font-black text-pink-400 uppercase tracking-widest group-hover:text-pink-300 transition-colors">最近获得点赞</h5>
+                <span className="text-xs text-white font-black">{item.socialRecords?.likes || 0}</span>
+              </div>
+              <div className="flex -space-x-2">
+                {[
+                  { char: '王', color: 'from-purple-400 to-pink-600' },
+                  { char: 'C', color: 'from-emerald-400 to-teal-600' },
+                  { char: 'L', color: 'from-orange-400 to-red-600' },
+                  { char: 'Z', color: 'from-cyan-400 to-blue-600' }
+                ].map((avatar, i) => (
+                  <div key={i} className={`w-8 h-8 rounded-full border-2 border-slate-900 bg-gradient-to-br ${avatar.color} flex items-center justify-center text-[10px] text-white font-black shadow-lg`}>
+                    {avatar.char}
+                  </div>
+                ))}
+                <div className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[8px] text-slate-400 font-black">
+                  +{Math.max(0, (item.socialRecords?.likes || 0) - 4)}
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard
+              className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
+              opacity={40}
+              onClick={() => setModalItem(item)}
+            >
+              <h5 className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4 group-hover:text-cyan-300 transition-colors">同学评价 (点击互动)</h5>
+              <div className="space-y-3">
+                {item.socialRecords?.comments.slice(0, 2).map((comment, i) => (
+                  <div key={i} className="text-xs">
+                    <span className="font-black text-white mr-2">{comment.user}:</span>
+                    <span className="text-slate-400">{comment.content}</span>
+                  </div>
+                )) || (
+                    <p className="text-[10px] text-slate-600 font-bold italic">尚无公开评论，点击发起讨论</p>
+                  )}
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 pb-20 fade-in-standard">
+      {/* Header */}
       <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
           <div className="inline-block px-3 py-1 bg-purple-500/20 rounded-full text-[10px] text-purple-300 font-black uppercase tracking-widest mb-3 border border-purple-500/30">
@@ -222,7 +320,6 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
           <p className="text-slate-400 mt-3 font-bold">收录了您 {items.length} 件高光玻璃作品</p>
         </div>
         <div className="flex gap-4">
-          {/* Upload Button */}
           <div className="relative group">
             <input
               type="file"
@@ -241,150 +338,84 @@ const PortfolioView: React.FC<PortfolioViewProps> = ({ items, onNavigate }) => {
               </div>
             </div>
           </div>
-          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center hover:bg-black/60 transition-colors cursor-pointer" onClick={() => alert('点赞详情功能开发中')}>
+          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center">
             <span className="text-xs text-slate-500 font-black uppercase tracking-tighter">累计点赞</span>
-            <span className="text-xl font-black text-pink-500">248</span>
+            <span className="text-xl font-black text-pink-500">{items.reduce((acc, i) => acc + (i.socialRecords?.likes || 0), 0)}</span>
           </div>
-          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center hover:bg-black/60 transition-colors cursor-pointer" onClick={() => alert('主理人点评历史功能开发中')}>
+          <div className="bg-black/40 px-5 py-3 rounded-2xl border border-white/5 flex flex-col items-center">
             <span className="text-xs text-slate-500 font-black uppercase tracking-tighter">主理人点评</span>
             <span className="text-xl font-black text-cyan-400">{items.filter(i => i.ownerFeedback).length}</span>
           </div>
         </div>
       </div>
 
-      <div className="space-y-12 md:space-y-20">
-        {items.map((item) => (
-          <div key={item.id} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* Expanded Item */}
+      {expandedItem && renderExpandedItem(expandedItem)}
 
-            {/* 左侧：双重影像展示 */}
-            <div className="lg:col-span-5 space-y-4">
-              <div
-                className="relative group overflow-hidden rounded-3xl border border-white/20 aspect-square shadow-2xl cursor-pointer"
-                onClick={() => alert('点击查看高清大图')}
-              >
-                <GlassImage
-                  src={item.userUploadedImageUrl || item.imageUrl}
-                  alt={item.recipe.title}
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                  containerClassName="w-full h-full"
-                />
-                <div
-                  className="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[10px] text-white font-black uppercase tracking-widest border border-white/10 z-20"
-                  onClick={(e) => { e.stopPropagation(); setSelectedItem(item); }}
-                >
-                  {item.userUploadedImageUrl ? '实作作品' : 'AI 原型'}
-                </div>
-              </div>
-              <div className="flex justify-between items-center px-2">
-                <h3 className="text-xl font-black text-white italic">{item.recipe.title}</h3>
-                <span className="text-[10px] text-slate-500 font-bold uppercase">{new Date(item.timestamp).toLocaleDateString()}</span>
-              </div>
-
-              {/* 作品描述展示 (如果存在) */}
-              <div className="bg-white/5 p-4 rounded-xl border border-white/5 text-sm text-slate-300 leading-relaxed italic">
-                “{item.recipe.description}”
-              </div>
-            </div>
-
-            {/* 右侧：专业点评与社交内容保持不变 */}
-            <div className="lg:col-span-7 space-y-6">
-
-              {/* 主理人私语 (Private Feedback) */}
-              <GlassCard className="p-6 md:p-8 relative overflow-hidden group hover:border-amber-500/30 transition-colors" opacity={60}>
-                {/* 装饰水印 */}
-                <div className="absolute top-[-20px] right-[-20px] opacity-[0.03] rotate-12">
-                  <svg width="200" height="200" viewBox="0 0 24 24" fill="white"><path d="M12 2L1 21h22L12 2zm0 3.45L18.8 19H5.2L12 5.45z" /></svg>
-                </div>
-
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center border-2 border-white/20 shadow-lg">
-                    <span className="text-white font-black italic">师</span>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-widest">主理人批示</h4>
-                    <p className="text-[10px] text-amber-500 font-bold">STUDIO MASTER'S PRIVATE NOTE</p>
-                  </div>
-                </div>
-
-                {item.ownerFeedback ? (
-                  <div className="bg-white/5 p-5 rounded-2xl border border-white/10">
-                    <p className="text-slate-200 italic leading-relaxed text-sm md:text-base mb-4">
-                      “{item.ownerFeedback}”
-                    </p>
-                    <div className="flex justify-end">
-                      <span className="text-[10px] text-slate-500 font-black italic">— 陈师傅, 艺术总监</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="py-6 text-center border-2 border-dashed border-white/5 rounded-2xl">
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">等待主理人审阅中...</p>
-                  </div>
-                )}
-              </GlassCard>
-
-              {/* 社区回响 (Social interactions) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* 点赞动态 */}
-                <GlassCard
-                  className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
-                  opacity={40}
-                  // @ts-ignore
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h5 className="text-[10px] font-black text-pink-400 uppercase tracking-widest group-hover:text-pink-300 transition-colors">最近获得点赞</h5>
-                    <span className="text-xs text-white font-black">{item.socialRecords?.likes || 0}</span>
-                  </div>
-                  <div className="flex -space-x-2">
-                    {[
-                      { char: '王', color: 'from-purple-400 to-pink-600' },
-                      { char: 'C', color: 'from-emerald-400 to-teal-600' },
-                      { char: 'L', color: 'from-orange-400 to-red-600' },
-                      { char: 'Z', color: 'from-cyan-400 to-blue-600' }
-                    ].map((avatar, i) => (
-                      <div key={i} className={`w-8 h-8 rounded-full border-2 border-slate-900 bg-gradient-to-br ${avatar.color} flex items-center justify-center text-[10px] text-white font-black shadow-lg`}>
-                        {avatar.char}
-                      </div>
-                    ))}
-                    <div className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center text-[8px] text-slate-400 font-black">
-                      +{Math.max(0, (item.socialRecords?.likes || 0) - 4)}
-                    </div>
-                  </div>
-                </GlassCard>
-
-                {/* 评论动态 */}
-                <GlassCard
-                  className="p-5 hover:bg-white/5 transition-colors cursor-pointer group"
-                  opacity={40}
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <h5 className="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4 group-hover:text-cyan-300 transition-colors">同学评价 (点击互动)</h5>
-                  <div className="space-y-3">
-                    {item.socialRecords?.comments.map((comment, i) => (
-                      <div key={i} className="text-xs">
-                        <span className="font-black text-white mr-2">{comment.user}:</span>
-                        <span className="text-slate-400">{comment.content}</span>
-                      </div>
-                    )) || (
-                        <p className="text-[10px] text-slate-600 font-bold italic">尚无公开评论，点击发起讨论</p>
-                      )}
-                  </div>
-                </GlassCard>
-              </div>
-
-            </div>
+      {/* Collapsed Items Grid */}
+      {collapsedItems.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1 h-6 bg-slate-500 rounded-full"></div>
+            <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">其他作品</h4>
+            <span className="text-xs text-slate-600">点击展开</span>
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {collapsedItems.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => setExpandedItemId(item.id)}
+                className="group cursor-pointer"
+              >
+                <GlassCard className="p-0 overflow-hidden transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.3)]" opacity={50}>
+                  <div className="aspect-square relative">
+                    <GlassImage
+                      src={item.userUploadedImageUrl || item.imageUrl}
+                      alt={item.recipe.title}
+                      className="w-full h-full object-cover"
+                      containerClassName="w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                      <span className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9m10.5 11.25v-4.5m0 4.5h-4.5m4.5 0L15 15m-6 0L3.75 20.25m16.5-16.5L15 9" />
+                        </svg>
+                        展开
+                      </span>
+                    </div>
+                    {item.ownerFeedback && (
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-[8px] text-white font-black border border-white/30 shadow-lg">
+                        师
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 bg-slate-900/80">
+                    <h5 className="text-xs font-black text-white truncate">{item.recipe.title}</h5>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-[10px] text-slate-500">{new Date(item.timestamp).toLocaleDateString()}</span>
+                      <div className="flex items-center gap-1 text-[10px] text-pink-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 fill-current" viewBox="0 0 20 20">
+                          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                        </svg>
+                        {item.socialRecords?.likes || 0}
+                      </div>
+                    </div>
+                  </div>
+                </GlassCard>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      {/* Upload Modal for Non-empty state */}
+      {/* Upload Modal */}
       {uploadModalOpen && renderUploadModal()}
 
       {/* Interaction Modal */}
       <CommunityPostModal
-        isOpen={!!selectedItem}
-        onClose={() => setSelectedItem(null)}
-        post={selectedItem ? mapHistoryToPost(selectedItem) : null}
+        isOpen={!!modalItem}
+        onClose={() => setModalItem(null)}
+        post={modalItem ? mapHistoryToPost(modalItem) : null}
         onComment={handleComment}
         onCopyPrompt={() => { }}
       />
