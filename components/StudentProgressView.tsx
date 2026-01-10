@@ -1,7 +1,13 @@
 import React from 'react';
 import GlassCard from './GlassCard';
 import GlassImage from './GlassImage';
-import FeedbackModal from './FeedbackModal';
+import OwnerComparisonReviewModal from './OwnerComparisonReviewModal';
+import { HistoryItem } from '../types';
+
+const getAssetPath = (path: string) => {
+  const base = import.meta.env.BASE_URL || '/';
+  return `${base}${path.startsWith('/') ? path.slice(1) : path}`;
+};
 
 interface StudentProgress {
   id: string;
@@ -13,6 +19,9 @@ interface StudentProgress {
   avgScore: number;
   achievements: string[];
   lastWorkThumb: string;
+  // New: iteration data for comparison review
+  comparisonIterations?: HistoryItem['comparisonIterations'];
+  ownerFeedback?: string;
 }
 
 const MOCK_STUDENTS: StudentProgress[] = [
@@ -25,7 +34,29 @@ const MOCK_STUDENTS: StudentProgress[] = [
     lastActive: '1小时前',
     avgScore: 92,
     achievements: ['吹制达人', '配色天才'],
-    lastWorkThumb: '/images/mock/glass-blown.png'
+    lastWorkThumb: '/images/mock/glass-blown.png',
+    comparisonIterations: [
+      {
+        attemptNumber: 1,
+        userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+        aiScore: 78,
+        aiFeedback: '形态基本准确，色彩搭配有待加强。',
+        aiStrengths: ['形态稳定', '吹制均匀'],
+        aiImprovements: ['色彩过渡不够自然', '底部厚度不一'],
+        timestamp: Date.now() - 604800000
+      },
+      {
+        attemptNumber: 2,
+        userImageUrl: getAssetPath('/images/mock/glass-blown.png'),
+        aiScore: 92,
+        aiFeedback: '非常优秀！形态完美，色彩搭配和谐。',
+        aiStrengths: ['形态完美', '色彩和谐', '厚度均匀'],
+        aiImprovements: ['可尝试更复杂图案'],
+        masterEndorsement: '这是今年最优秀的学员作品之一，建议收录作品集。',
+        timestamp: Date.now() - 86400000
+      }
+    ],
+    ownerFeedback: '林同学的这件作品展现了扎实的吹制功底，已通过验收。'
   },
   {
     id: 's2',
@@ -36,7 +67,28 @@ const MOCK_STUDENTS: StudentProgress[] = [
     lastActive: '3小时前',
     avgScore: 85,
     achievements: ['冷加工先锋'],
-    lastWorkThumb: '/images/mock/glass-fused.png'
+    lastWorkThumb: '/images/mock/glass-fused.png',
+    comparisonIterations: [
+      {
+        attemptNumber: 1,
+        userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+        aiScore: 62,
+        aiFeedback: '整体形态接近目标，色彩渐变需要改进。',
+        aiStrengths: ['基本形态准确'],
+        aiImprovements: ['色彩过渡需更平滑', '边缘打磨粗糙'],
+        masterEndorsement: 'AI建议可采纳，延长退火时间10分钟。',
+        timestamp: Date.now() - 259200000
+      },
+      {
+        attemptNumber: 2,
+        userImageUrl: getAssetPath('/images/mock/glass-fused.png'),
+        aiScore: 85,
+        aiFeedback: '非常出色的进步！色彩渐变流畅自然。',
+        aiStrengths: ['色彩过渡流畅', '边缘精细', '整体完成度高'],
+        aiImprovements: ['细节可再精进'],
+        timestamp: Date.now() - 86400000
+      }
+    ]
   },
   {
     id: 's3',
@@ -47,7 +99,18 @@ const MOCK_STUDENTS: StudentProgress[] = [
     lastActive: '昨天',
     avgScore: 78,
     achievements: [],
-    lastWorkThumb: '/images/mock/glass-student.png'
+    lastWorkThumb: '/images/mock/glass-student.png',
+    comparisonIterations: [
+      {
+        attemptNumber: 1,
+        userImageUrl: getAssetPath('/images/mock/glass-student.png'),
+        aiScore: 58,
+        aiFeedback: '初学者的良好开端，需要更多练习。',
+        aiStrengths: ['态度认真'],
+        aiImprovements: ['形态不够稳定', '需加强基础功', '色彩运用欠佳'],
+        timestamp: Date.now() - 172800000
+      }
+    ]
   },
   {
     id: 's4',
@@ -58,39 +121,53 @@ const MOCK_STUDENTS: StudentProgress[] = [
     lastActive: '4小时前',
     avgScore: 88,
     achievements: ['热熔工艺专家'],
-    lastWorkThumb: '/images/mock/glass-lampwork.png'
+    lastWorkThumb: '/images/mock/glass-lampwork.png',
+    comparisonIterations: [
+      {
+        attemptNumber: 1,
+        userImageUrl: getAssetPath('/images/mock/glass-lampwork.png'),
+        aiScore: 88,
+        aiFeedback: '热熔工艺掌握出色，细节处理到位。',
+        aiStrengths: ['热熔技术纯熟', '细节精致', '色彩层次丰富'],
+        aiImprovements: ['可尝试更大尺寸作品'],
+        timestamp: Date.now() - 43200000
+      }
+    ]
   }
 ];
 
 const StudentProgressView: React.FC = () => {
-  const [selectedSubmission, setSelectedSubmission] = React.useState<any>(null);
+  const [selectedItem, setSelectedItem] = React.useState<HistoryItem | null>(null);
 
   const handleShowDetail = (student: StudentProgress) => {
-    // 构造一个临时的 HistoryItem 用于展示
-    const mockSubmission = {
+    // 构造一个 HistoryItem 用于展示
+    const mockItem: HistoryItem = {
       id: student.id,
       timestamp: Date.now(),
-      imageUrl: student.lastWorkThumb,
+      imageUrl: getAssetPath(student.lastWorkThumb),
       userId: student.name,
+      comparisonIterations: student.comparisonIterations,
+      ownerFeedback: student.ownerFeedback,
       recipe: {
         title: student.name === '林晓明' ? '冰裂纹肌理杯' :
-          student.name === '张雅琪' ? '千花艺术纸镇' :
-            student.name === '刘川' ? '基础吹制练习' : '热熔盘',
-        description: '学员近期完成的练习作品',
+          student.name === '张雅琪' ? '渐变熔岩花瓶' :
+            student.name === '刘川' ? '基础吹制练习杯' : '千花艺术灯工件',
+        description: `${student.name}在${student.level}阶段的代表作品`,
         difficulty: student.level === '高级学员' ? 'Advanced' :
           student.level === '中级学员' ? 'Intermediate' : 'Beginner',
         estimatedTime: '4小时',
-        techniques: student.achievements,
+        techniques: student.achievements.length > 0 ? student.achievements : ['基础工艺'],
         materials: ['高硅硼玻璃'],
         steps: [],
         visualPrompt: ''
-      },
-      // 预设不同的评语
-      ownerFeedback: `这是${student.name}在${student.level}阶段的代表作。
-       
-整体造型非常完整，特别是对于${student.achievements[0] || '基础工艺'}的掌握已经相当熟练。建议在细节抛光上再多花一些功夫。`
+      }
     };
-    setSelectedSubmission(mockSubmission);
+    setSelectedItem(mockItem);
+  };
+
+  const handleAccept = (itemId: string, feedback: string) => {
+    console.log('Accepted item:', itemId, 'with feedback:', feedback);
+    alert(`已验收通过！\n\n评语：${feedback}`);
   };
 
   return (
@@ -181,11 +258,11 @@ const StudentProgressView: React.FC = () => {
         ))}
       </div>
 
-      <FeedbackModal
-        isOpen={!!selectedSubmission}
-        onClose={() => setSelectedSubmission(null)}
-        submission={selectedSubmission}
-        readOnly={true}
+      <OwnerComparisonReviewModal
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        item={selectedItem}
+        onAccept={handleAccept}
       />
     </div>
   );
